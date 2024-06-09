@@ -1,0 +1,80 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "CLog.h"
+#include "Engine.h"
+
+// 언리얼엔진 로그창 출력 관련
+DEFINE_LOG_CATEGORY_STATIC(GameProject, Display, All)
+
+void CLog::Print(int32 InValue, int32 InKey, float Duration, FColor InColor)
+{
+	GEngine->AddOnScreenDebugMessage(InKey, Duration, InColor, FString::FromInt(InValue));
+}
+
+void CLog::Print(float InValue, int32 InKey, float Duration, FColor InColor)
+{
+	GEngine->AddOnScreenDebugMessage(InKey, Duration, InColor, FString::SanitizeFloat(InValue));
+}
+
+void CLog::Print(const FString& InValue, int32 InKey, float Duration, FColor InColor)
+{
+	GEngine->AddOnScreenDebugMessage(InKey, Duration, InColor, InValue);
+}
+
+void CLog::Print(const FVector& InValue, int32 InKey, float Duration, FColor InColor)
+{
+	// UObject 이하는 ToSting 함수를 가지고 있다.
+	GEngine->AddOnScreenDebugMessage(InKey, Duration, InColor, InValue.ToString());
+}
+
+void CLog::Print(const FRotator& InValue, int32 InKey, float Duration, FColor InColor)
+{
+	GEngine->AddOnScreenDebugMessage(InKey, Duration, InColor, InValue.ToString());
+}
+
+void CLog::Log(int32 InValue)
+{
+	// 카테고리와 표현 형식이 가능한 매크로
+	UE_LOG(GameProject, Display, L"%d", InValue);
+}
+
+void CLog::Log(float InValue)
+{
+	UE_LOG(GameProject, Display, L"%f", InValue);
+}
+
+void CLog::Log(const FString& InValue)
+{
+	UE_LOG(GameProject, Display, L"%s", *InValue);
+}
+
+void CLog::Log(const FVector& InValue)
+{
+	UE_LOG(GameProject, Display, L"%s", *InValue.ToString());
+}
+
+void CLog::Log(const FRotator& InValue)
+{
+	UE_LOG(GameProject, Display, L"%s", *InValue.ToString());
+}
+
+void CLog::Log(const UObject* InObject)
+{
+	FString str;
+	if (!!InObject)
+		str.Append(InObject->GetName());
+
+	str.Append(!!InObject ? " Not Null " : " Null");
+	UE_LOG(GameProject, Display, L"%s", *str);
+}
+
+void CLog::Log(const FString& InFuncName, int32 InLineNumber)
+{
+	FString str;
+	str.Append(InFuncName);
+	str.Append(",");
+	str.Append(FString::FromInt(InLineNumber));
+
+	UE_LOG(GameProject, Display, L"%s", *str);
+}
