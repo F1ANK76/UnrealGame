@@ -59,10 +59,9 @@ ACPlayer::ACPlayer()
 
 	// 이미 있는 블루프린트클래스면 가져다 쓰는게 효율적이다.
 	CHelpers::GetClass<UCameraShake>(&CameraShakeClass, "Blueprint'/Game/BP_CameraShake.BP_CameraShake_C'");
-
-
 }
 
+// 탄착부 형성 관련
 void ACPlayer::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVector& OutDirection)
 {
 	OutDirection = Camera->GetForwardVector();
@@ -71,11 +70,11 @@ void ACPlayer::GetLocationAndDirection(FVector& OutStart, FVector& OutEnd, FVect
 	FVector cameraLocation = transform.GetLocation();
 	OutStart = cameraLocation + OutDirection;
 
+	// 반동 관련 로직
 	FVector conDirection = UKismetMathLibrary::RandomUnitVectorInEllipticalConeInDegrees(OutDirection, 0.2f, 0.3f);
 	conDirection *= 3000.0f;
 
 	OutEnd = cameraLocation + conDirection;
-
 }
 
 // Called when the game starts or when spawned
@@ -205,17 +204,21 @@ void ACPlayer::OnRifle()
 
 void ACPlayer::OnAim()
 {
+	// 라이플 장착 상태 체크 관련
 	CheckFalse(Rifle->GetEquipped());
 	CheckTrue(Rifle->GetEquipping());
 
 	bUseControllerRotationYaw = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
+
+	// 카메라 위치 설정
 	SpringArm->TargetArmLength = 100;
 	SpringArm->SocketOffset = FVector(0, 30, 10);
 
 	// 화면 확대 느낌
 	//Camera->FieldOfView = 40;
 	
+	// 위 주석 코드와 같은 기능
 	OnZoomIn();
 
 	Rifle->Begin_Aiming();
@@ -233,8 +236,9 @@ void ACPlayer::OffAim()
 	SpringArm->SocketOffset = FVector(0, 60, 0);
 
 	// 화면 축소 느낌
-	Camera->FieldOfView = 90;
+	//Camera->FieldOfView = 90;
 
+	// 위 주석 코드와 같은 기능
 	OnZoomOut();
 
 	Rifle->End_Aiming();

@@ -142,7 +142,7 @@ void ACRifle::Firing()
 	if (!!BulletClass)
 		GetWorld()->SpawnActor<ACBullet>(BulletClass, muzzleLocation, direction.Rotation());
 
-	// 타켓에 에임 조준시 크로스헤어 빨간색으로 변경
+	// 충돌 관련 설정
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OwnerCharacter);
@@ -162,11 +162,12 @@ void ACRifle::Firing()
 		// 총 데칼 자국 추가
 		UGameplayStatics::SpawnDecalAtLocation(GetWorld(), DecalMaterial, FVector(5), hitResult.Location, rotator, 10.0f);
 	}
-
+	
+	// 총알 맞았을 때 물체 충돌 처리
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_WorldDynamic, params))
 	{
 		AStaticMeshActor* staticMeshActor = Cast<AStaticMeshActor>(hitResult.GetActor());
-		if (!!staticMeshActor)
+		if (!!staticMeshActor) // 충돌이 날 경우
 		{
 			UStaticMeshComponent* meshComponent = Cast<UStaticMeshComponent>(staticMeshActor->GetRootComponent());
 
@@ -177,6 +178,7 @@ void ACRifle::Firing()
 					direction = staticMeshActor->GetActorLocation() - OwnerCharacter->GetActorLocation(); // 액터를 바라보는 방향
 					direction.Normalize();
 
+					// 해당 방향으로 밀어서 물체를 넘어뜨림
 					meshComponent->AddImpulseAtLocation(direction * meshComponent->GetMass() * 100, OwnerCharacter->GetActorLocation());
 					return;
 				}
@@ -215,17 +217,19 @@ void ACRifle::Tick(float DeltaTime)
 
 	FVector start, end, direction;
 
+	// 조준 부분 관련 방향 계산
 	rifle->GetLocationAndDirection(start, end, direction);
 
 	// 출력 형태
 	//DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 3.0f);
 
-	// 타켓에 에임 조준시 크로스헤어 빨간색으로 변경
+	// 충돌 관련 설정
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OwnerCharacter);
 	FHitResult hitResult;
 
+	// 타켓에 에임 조준시 크로스헤어 빨간색으로 변경
 	if (GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_WorldDynamic, params))
 	{
 		AStaticMeshActor* staticMeshActor = Cast<AStaticMeshActor>(hitResult.GetActor());
